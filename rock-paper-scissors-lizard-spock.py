@@ -112,11 +112,11 @@ def gamePlay(playData, player1Score, player2Score):
     print("\nWould you like to continue playing? \nPlease press y for yes and n for no.") 
     rawPlayAgainChoice = input("Please press y or n on the keyboard: ") 
     validPlayAgainChoice = validatePlayAgainInput(rawPlayAgainChoice) 
+    gameTotalScore = [player1Score, player2Score] 
     if validPlayAgainChoice == "y": 
-        gamePlay(playData, player1Score, player2Score) 
+        return gamePlay(playData, player1Score, player2Score) 
     else: 
         print("Game over!") 
-        gameTotalScore = [player1Score, player2Score] 
         return gameTotalScore
 
 def scoreBoard(scoreBoardData, totalScore): 
@@ -127,7 +127,7 @@ def scoreBoard(scoreBoardData, totalScore):
     print(finalPlayer1Name, finalScore1, ":", finalScore2, finalPlayer2Name)
 
 def main(): 
-    print("Game of Rock, Paper, Scissors, Lizard, and Spock") 
+    print("\nGame of Rock, Paper, Scissors, Lizard, Spock") 
     combinedGamePlayData = gameMenu() 
     player1CurrentScore = 0 
     player2CurrentScore = 0 
