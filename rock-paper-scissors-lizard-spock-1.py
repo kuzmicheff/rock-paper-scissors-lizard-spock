@@ -10,8 +10,8 @@ def displayGameRules():
 def selectGameMode(): 
     print("\nTo play against the computer, press 1 \nTo play against another player, press 2") 
     modeInput = input("\nPlease select the game mode: ") 
-    validMode = validateGameMode(modeInput) 
-    if validMode == "1": 
+    modeInput = validateGameMode(modeInput) 
+    if modeInput == "1": 
         selectedGameMode = "Single Player Game" 
     else: 
         selectedGameMode = "Multi Player Game"
@@ -23,6 +23,15 @@ def validateGameMode(rawModeInput):
     else: 
         rawModeInput = input("\nPlease press 1 or 2: ")
         return validateGameMode(rawModeInput) 
+
+def selectPlayerOptions(currentMode):
+    player1Name = selectPlayerName(1) 
+    if currentMode == "Single Player Game": 
+        player2Name = "Computer" 
+    else: 
+        player2Name = selectPlayerName(2) 
+    playerNames = [player1Name, player2Name] 
+    return playerNames
 
 def selectPlayerName(playerNumber): 
     if playerNumber == 1: 
@@ -50,8 +59,26 @@ def validatePlayerName(rawNameInput):
         rawNameInput = input("Please enter your name: ")
         return validatePlayerName(rawNameInput) 
 
+def startPlayingGame(currentMode, currentPlayers, currentScore): 
+        player1Hand = selectPlayerHand(currentPlayers[0]) 
+        if currentMode == "Single Player Game": 
+            gameHands = [1, 2, 3, 4, 5] 
+            player2Hand = random.choice(gameHands) 
+        else: 
+            player2Hand = selectPlayerHand(currentPlayers[1]) 
+        roundResult = figureHandResult(player1Hand, player2Hand) 
+        roundScore = updateScoreBoard(roundResult, currentPlayers[0], currentPlayers[1], player1Hand, player2Hand, currentScore[0], currentScore[1]) 
+        print("\n" + currentPlayers[0], str(roundScore[0]) + ":" + str(roundScore[1]), currentPlayers[1])
+        nextRound = playNextRound() 
+        if nextRound == "y": 
+            print("\033c") 
+            return startPlayingGame(currentMode, currentPlayers, roundScore) 
+        else: 
+            print("\033c") 
+            return roundScore
+
 def selectPlayerHand(currentPlayerName):
-    print("Please select your hand") 
+    print("\nPlease select your hand") 
     handInput = input(currentPlayerName + ", press any key from 1 to 5: ") 
     playerHand = validatePlayerHand(handInput)
     print("\033c") 
@@ -118,11 +145,7 @@ def playNextRound():
     print("\nWould you like to play another round?") 
     nextRoundChoice = input("Please press y or n on the keyboard: ") 
     nextRoundChoice = validateNextRoundInput(nextRoundChoice) 
-    if nextRoundChoice == "y": 
-        return True
-    else: 
-        print("\nGame over!") 
-        return False
+    return nextRoundChoice
 
 def validateNextRoundInput(nextRoundInput):
     if re.match("^[yn]$", nextRoundInput): 
@@ -131,35 +154,21 @@ def validateNextRoundInput(nextRoundInput):
         nextRoundInput = input("Please press y or n to continue or stop: ") 
         return validateNextRoundInput(nextRoundInput) 
 
-def displayFinalScore(player1, player2, finalScore): 
-    print("\n" + player1, str(finalScore[0]) + ":" + str(finalScore[1]), player2)
+def displayFinalScore(currentPlayers, finalScore): 
+    print("Game over!\n\n" + currentPlayers[0], str(finalScore[0]) + ":" + str(finalScore[1]), currentPlayers[1] + "\n")
 
 def main(): 
     displayGameTitle() 
     displayGameRules()
     gameMode = selectGameMode() 
-    print("\n" + gameMode)
-    player1Name = selectPlayerName(1) 
-    if gameMode == "Single Player Game": 
-        player2Name = "Computer" 
-    else: 
-        player2Name = selectPlayerName(2) 
+    print("\033c")
+    print(gameMode)
+    players = selectPlayerOptions(gameMode)
     gameScore = [0, 0] 
-    nextRound = True
-    while nextRound:
-        print("\033c") 
-        print(gameMode)
-        print("\n" + player1Name, str(gameScore[0]) + ":" + str(gameScore[1]), player2Name) 
-        player1Hand = selectPlayerHand(player1Name) 
-        if gameMode == "Single Player Game": 
-            gameHands = [1, 2, 3, 4, 5] 
-            player2Hand = random.choice(gameHands) 
-        else: 
-            player2Hand = selectPlayerHand(player2Name) 
-        roundResult = figureHandResult(player1Hand, player2Hand) 
-        gameScore = updateScoreBoard(roundResult, player1Name, player2Name, player1Hand, player2Hand, gameScore[0], gameScore[1]) 
-        nextRound = playNextRound() 
-        if nextRound == False: 
-            displayFinalScore(player1Name, player2Name, gameScore) 
+    print("\033c") 
+    print(gameMode)
+    print("\n" + players[0], str(gameScore[0]) + ":" + str(gameScore[1]), players[1]) 
+    gameScore = startPlayingGame(gameMode, players, gameScore) 
+    displayFinalScore(players, gameScore) 
 
 main()
